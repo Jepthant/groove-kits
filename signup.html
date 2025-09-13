@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - GrooveKits</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+
+  <div class="bg-black/70 p-8 rounded-2xl shadow-xl w-full max-w-md">
+    <h1 class="text-3xl font-bold text-center text-green-400 mb-6">Sign Up</h1>
+
+    <!-- Username -->
+    <input id="username" type="text" placeholder="Username"
+      class="w-full mb-4 px-4 py-2 rounded-lg text-black" />
+
+    <!-- Email -->
+    <input id="email" type="email" placeholder="Email"
+      class="w-full mb-4 px-4 py-2 rounded-lg text-black" />
+
+    <!-- Password -->
+    <input id="password" type="password" placeholder="Password"
+      class="w-full mb-6 px-4 py-2 rounded-lg text-black" />
+
+    <!-- Sign Up Button -->
+    <button onclick="signup()"
+      class="w-full bg-green-500 hover:bg-green-400 text-black py-2 px-4 rounded-lg font-bold">
+      Sign Up
+    </button>
+
+    <p class="text-center text-gray-400 mt-4">
+      Already have an account? <a href="login.html" class="text-green-400 hover:underline">Login</a>
+    </p>
+  </div>
+
+  <!-- Supabase Client -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://cnmvsuaysgjbpklwycuk.supabase.co"; 
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubXZzdWF5c2dqYnBrbHd5Y3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNjY1MTIsImV4cCI6MjA3MTY0MjUxMn0.XkNE8iPORYOYfo3Z5vSxA-LrxbTpPUTDyxmWIH7zTjc";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
+
+    async function signup() {
+      const username = document.getElementById("username").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (!username || !email || !password) {
+        alert("⚠️ Please fill all fields.");
+        return;
+      }
+
+      // Register user in Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+
+      if (error) {
+        alert("❌ Sign up failed: " + error.message);
+        return;
+      }
+
+      console.log("✅ Signup success:", data);
+
+      alert("🎉 Signup successful! Please wait for admin approval.");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

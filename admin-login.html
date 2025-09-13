@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - GrooveKits</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gray-900 text-white flex flex-col">
+
+  <!-- HEADER -->
+  <header class="bg-black/80 p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-green-400">Admin Dashboard</h1>
+    <button onclick="logout()" class="bg-red-500 hover:bg-red-400 px-4 py-2 rounded-xl font-bold">
+      Logout
+    </button>
+  </header>
+
+  <main class="flex-1 p-6 space-y-12">
+    <!-- Pending Approvals -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">⏳ Pending Approvals</h2>
+      <table class="w-full border border-gray-700 text-sm">
+        <thead>
+          <tr class="bg-gray-800">
+            <th class="p-2 border border-gray-700">Username</th>
+            <th class="p-2 border border-gray-700">Email</th>
+            <th class="p-2 border border-gray-700">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pending-users" class="bg-gray-700"></tbody>
+      </table>
+    </section>
+
+    <!-- All Users -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">👥 All Users</h2>
+      <table class="w-full border border-gray-700 text-sm">
+        <thead>
+          <tr class="bg-gray-800">
+            <th class="p-2 border border-gray-700">Username</th>
+            <th class="p-2 border border-gray-700">Email</th>
+            <th class="p-2 border border-gray-700">Balance (GC)</th>
+            <th class="p-2 border border-gray-700">Approved</th>
+          </tr>
+        </thead>
+        <tbody id="users-table" class="bg-gray-700"></tbody>
+      </table>
+    </section>
+
+    <!-- Withdrawals -->
+    <section>
+      <h2 class="text-xl font-semibold mb-4">💰 Pending Withdrawals</h2>
+      <table class="w-full border border-gray-700 text-sm">
+        <thead>
+          <tr class="bg-gray-800">
+            <th class="p-2 border border-gray-700">User</th>
+            <th class="p-2 border border-gray-700">Amount (RWF)</th>
+            <th class="p-2 border border-gray-700">Coins</th>
+            <th class="p-2 border border-gray-700">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="withdrawals-table" class="bg-gray-700"></tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Supabase Client -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://cnmvsuaysgjbpklwycuk.supabase.co",
+      "YOUR_ANON_KEY",
+      { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+    );
+
+    let currentUser = null;
+
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = session.user;
+
+      // check if admin
+      const { data: userRow } = await supabase
+        .from("users")
+        .select("is_admin")
+        .eq("id", currentUser.id)
+        .single();
+
+      if (!userRow || !userRow.is_admin) {
+        alert("⚠️ Access denied!");
+        window.location.href = "Earn-money.html";
+        return;
+      }
+
+      loadPendingUsers();
+      loadUsers();
+      loadWithdrawals();
+    }
+
+    async function loadPendingUsers() {
+      const { data } = await supabase
+        .from("users")
+        .select("id, username, email")
+        .eq("is_approved", false);
+
+      document.getElementById("pending-users").innerHTML = "";
+      data.forEach(u => {
+        document.getElementById("pending-users").innerHTML += `
+          <tr>
+            <td class="p-2 border border-gray-700">${u.username}</td>
+            <td class="p-2 border border-gray-700">${u.email}</td>
+            <td class="p-2 border border-gray-700 text-center">
+              <button onclick="approveUser('${u.id}')" class="bg-green-500 px-2 py-1 rounded mr-2">Approve</button>
+              <button onclick="rejectUser('${u.id}')" class="bg-red-500 px-2 py-1 rounded">Reject</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    async function approveUser(userId) {
+      await supabase.from("users").update({ is_approved: true }).eq("id", userId);
+      loadPendingUsers();
+      loadUsers();
+    }
+
+    async function rejectUser(userId) {
+      await supabase.from("users").delete().eq("id", userId);
+      loadPendingUsers();
+    }
+
+    async function loadUsers() {
+      const { data } = await supabase.from("user_balances").select("*");
+      document.getElementById("users-table").innerHTML = "";
+      data.forEach(u => {
+        document.getElementById("users-table").innerHTML += `
+          <tr>
+            <td class="p-2 border border-gray-700">${u.username}</td>
+            <td class="p-2 border border-gray-700">${u.email}</td>
+            <td class="p-2 border border-gray-700 text-center">${u.total_coins} GC</td>
+            <td class="p-2 border border-gray-700 text-center">${u.is_approved ? "✅" : "❌"}</td>
+          </tr>
+        `;
+      });
+    }
+
+    async function loadWithdrawals() {
+      const { data } = await supabase.from("pending_withdrawals").select("*");
+      document.getElementById("withdrawals-table").innerHTML = "";
+      data.forEach(w => {
+        document.getElementById("withdrawals-table").innerHTML += `
+          <tr>
+            <td class="p-2 border border-gray-700">${w.username}</td>
+            <td class="p-2 border border-gray-700">${w.amount}</td>
+            <td class="p-2 border border-gray-700">${w.coins}</td>
+            <td class="p-2 border border-gray-700 text-center">
+              <button onclick="approveWithdrawal('${w.withdrawal_id}')" class="bg-green-500 px-2 py-1 rounded mr-2">Approve</button>
+              <button onclick="rejectWithdrawal('${w.withdrawal_id}')" class="bg-red-500 px-2 py-1 rounded">Reject</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    async function approveWithdrawal(id) {
+      await supabase.from("withdrawals").update({ status: "approved" }).eq("id", id);
+      loadWithdrawals();
+    }
+
+    async function rejectWithdrawal(id) {
+      await supabase.from("withdrawals").update({ status: "rejected" }).eq("id", id);
+      loadWithdrawals();
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = "login.html";
+    }
+
+    init();
+  </script>
+</body>
+</html>
