@@ -35,18 +35,32 @@
   </div>
 
   <!-- Mobile Menu (hidden by default) -->
-  <div id="mobileMenu" class="hidden flex-col bg-black/90 text-gray-300 font-medium space-y-4 px-6 py-6 md:hidden">
-    <a href="#services" class="hover:text-green-400 transition">Services</a>
-    <a href="#marketplace" class="hover:text-green-400 transition">Marketplace</a>
-    <a href="#tutorials" class="hover:text-green-400 transition">Tutorials</a>
-    <a href="Earn-money.html" class="hover:text-green-400 transition">Earn money</a>
-    <a href="login.html" class="hover:text-green-400 transition">Login</a>
-    <!-- Music Control -->
-    <div class="flex items-center space-x-2 bg-gray-800/70 px-3 py-2 rounded-xl shadow-md border border-gray-700">
-      <button onclick="toggleMusic()" id="musicBtnMobile" class="text-green-400 hover:text-green-300 text-lg">⏸</button>
-      <input type="range" id="volumeControlMobile" min="0" max="1" step="0.05" value="0.5" class="w-24 accent-green-400">
-    </div>
+ <div id="mobileMenu" class="hidden absolute right-4 top-16 w-52 flex-col bg-black/95 text-gray-300 font-medium space-y-3 px-3 py-4 rounded-xl shadow-lg md:hidden z-50">
+  <a href="#services" class="block text-center bg-gray-800/70 border border-gray-700 px-3 py-2 rounded-lg hover:bg-green-400 hover:text-black transition text-sm font-medium">
+    Services
+  </a>
+  <a href="#marketplace" class="block text-center bg-gray-800/70 border border-gray-700 px-3 py-2 rounded-lg hover:bg-green-400 hover:text-black transition text-sm font-medium">
+    Marketplace
+  </a>
+  <a href="#tutorials" class="block text-center bg-gray-800/70 border border-gray-700 px-3 py-2 rounded-lg hover:bg-green-400 hover:text-black transition text-sm font-medium">
+    Tutorials
+  </a>
+  <a href="Earn-money.html" class="block text-center bg-gray-800/70 border border-gray-700 px-3 py-2 rounded-lg hover:bg-green-400 hover:text-black transition text-sm font-medium">
+    Earn Money
+  </a>
+  <a href="login.html" class="block text-center bg-gray-800/70 border border-gray-700 px-3 py-2 rounded-lg hover:bg-green-400 hover:text-black transition text-sm font-medium">
+    Login
+  </a>
+
+  <!-- Music Control -->
+  <div class="flex items-center justify-between bg-gray-800/70 px-2 py-2 rounded-lg shadow-md border border-gray-700">
+    <button onclick="toggleMusic()" id="musicBtnMobile" class="bg-green-500 text-black px-2 py-1 rounded-md text-sm font-semibold hover:bg-green-400 transition">
+      ⏸
+    </button>
+    <input type="range" id="volumeControlMobile" min="0" max="1" step="0.05" value="0.5" class="w-20 accent-green-400">
   </div>
+</div>
+
 </header>
 
 <!-- Background music -->
@@ -218,4 +232,3 @@
   </footer>
 </body>
 </html>
-
