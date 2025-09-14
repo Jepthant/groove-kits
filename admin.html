@@ -13,14 +13,8 @@
   <aside class="w-64 bg-gray-900 text-white flex flex-col">
     <div class="p-6 text-2xl font-bold text-green-400">GrooveKits Admin</div>
     <nav class="flex-1 space-y-2 px-4">
-      <a href="#" class="flex items-center px-3 py-2 rounded hover:bg-gray-700">
-        <i class="fas fa-users mr-2"></i> Users
-      </a>
       <a href="#approvals" class="flex items-center px-3 py-2 rounded hover:bg-gray-700">
         <i class="fas fa-user-check mr-2"></i> Approvals
-      </a>
-      <a href="#earnings" class="flex items-center px-3 py-2 rounded hover:bg-gray-700">
-        <i class="fas fa-coins mr-2"></i> Earnings
       </a>
       <a href="#withdrawals" class="flex items-center px-3 py-2 rounded hover:bg-gray-700">
         <i class="fas fa-money-bill mr-2"></i> Withdrawals
@@ -43,26 +37,6 @@
         <img src="https://ui-avatars.com/api/?name=Admin" id="admin-avatar" class="w-10 h-10 rounded-full"/>
       </div>
     </header>
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-      <div class="bg-green-500 text-white p-4 rounded-xl shadow">
-        <h2 class="text-lg font-semibold">Total Users</h2>
-        <p id="total-users" class="text-3xl font-bold">0</p>
-      </div>
-      <div class="bg-blue-500 text-white p-4 rounded-xl shadow">
-        <h2 class="text-lg font-semibold">Referrals</h2>
-        <p id="total-referrals" class="text-3xl font-bold">0</p>
-      </div>
-      <div class="bg-yellow-500 text-white p-4 rounded-xl shadow">
-        <h2 class="text-lg font-semibold">Coins Distributed</h2>
-        <p id="total-coins" class="text-3xl font-bold">0</p>
-      </div>
-      <div class="bg-red-500 text-white p-4 rounded-xl shadow">
-        <h2 class="text-lg font-semibold">Pending Withdrawals</h2>
-        <p id="pending-withdrawals" class="text-3xl font-bold">0</p>
-      </div>
-    </div>
 
     <!-- Pending Approvals -->
     <section id="approvals" class="bg-white p-4 rounded-xl shadow mb-8">
@@ -110,9 +84,10 @@
         window.location.href = "login.html";
         return;
       }
+
       const user = session.user;
 
-      // Fetch admin info
+      // Fetch profile
       const { data: profile } = await supabase
         .from("users")
         .select("*")
@@ -128,24 +103,14 @@
       document.getElementById("admin-name").innerText = profile.username || "Admin";
       document.getElementById("admin-avatar").src = `https://ui-avatars.com/api/?name=${profile.username}`;
 
-      // Fetch stats
-      const { data: users } = await supabase.from("users").select("*");
-      document.getElementById("total-users").innerText = users.length;
+      // Load pending approvals
+      const { data: pendingUsers } = await supabase
+        .from("users")
+        .select("id, username, email, is_approved")
+        .eq("is_approved", false);
 
-      const { data: referrals } = await supabase.from("referrals").select("*");
-      document.getElementById("total-referrals").innerText = referrals.length;
-
-      const { data: coins } = await supabase.from("earnings").select("coins");
-      const totalCoins = coins.reduce((s, r) => s + r.coins, 0);
-      document.getElementById("total-coins").innerText = totalCoins;
-
-      const { data: withdrawals } = await supabase.from("withdrawals").select("*").eq("status", "pending");
-      document.getElementById("pending-withdrawals").innerText = withdrawals.length;
-
-      // Fill approvals table
-      const pending = users.filter(u => !u.is_approved);
       let approvalsHTML = "";
-      for (let u of pending) {
+      for (let u of pendingUsers) {
         approvalsHTML += `
           <tr>
             <td class="p-2 border">${u.username}</td>
@@ -158,12 +123,24 @@
       }
       document.getElementById("approvals-table").innerHTML = approvalsHTML;
 
-      // Fill withdrawals table
+      // Load pending withdrawals
+      const { data: withdrawals } = await supabase
+        .from("withdrawals")
+        .select("id, amount, coins, status, user_id")
+        .eq("status", "pending");
+
       let withdrawalsHTML = "";
       for (let w of withdrawals) {
+        // fetch username/email ya user
+        const { data: u } = await supabase
+          .from("users")
+          .select("username, email")
+          .eq("id", w.user_id)
+          .single();
+
         withdrawalsHTML += `
           <tr>
-            <td class="p-2 border">${w.user_id}</td>
+            <td class="p-2 border">${u?.username || "Unknown"} (${u?.email || ""})</td>
             <td class="p-2 border">${w.amount}</td>
             <td class="p-2 border">${w.coins}</td>
             <td class="p-2 border">${w.status}</td>
