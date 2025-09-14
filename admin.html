@@ -1,26 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Dashboard - GrooveKits</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://kit.fontawesome.com/a2e0ad5e50.js" crossorigin="anonymous"></script>
+  <script>
+    // Tailwind dark mode support
+    tailwind.config = {
+      darkMode: 'class',
+    };
+  </script>
 </head>
-<body class="flex min-h-screen bg-gray-100 text-gray-900">
+<body class="flex min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
 
   <!-- Sidebar -->
   <aside class="w-64 bg-gray-900 text-white flex flex-col">
     <div class="p-6 text-2xl font-bold text-green-400">GrooveKits Admin</div>
     <nav class="flex-1 space-y-2 px-4">
-      <a href="#approvals" class="flex items-center px-3 py-2 rounded hover:bg-gray-700">
-        <i class="fas fa-user-check mr-2"></i> Approvals
-      </a>
-      <a href="#withdrawals" class="flex items-center px-3 py-2 rounded hover:bg-gray-700">
-        <i class="fas fa-money-bill mr-2"></i> Withdrawals
-      </a>
+      <a href="#users" class="flex items-center px-3 py-2 rounded hover:bg-gray-700"><i class="fas fa-users mr-2"></i> Users</a>
+      <a href="#approvals" class="flex items-center px-3 py-2 rounded hover:bg-gray-700"><i class="fas fa-user-check mr-2"></i> Approvals</a>
+      <a href="#withdrawals" class="flex items-center px-3 py-2 rounded hover:bg-gray-700"><i class="fas fa-money-bill mr-2"></i> Withdrawals</a>
     </nav>
     <div class="p-4 border-t border-gray-700">
+      <button onclick="toggleDarkMode()" class="w-full bg-gray-600 hover:bg-gray-500 px-4 py-2 rounded font-bold mb-2">
+        Toggle Dark Mode
+      </button>
       <button onclick="logout()" class="w-full bg-red-500 hover:bg-red-400 px-4 py-2 rounded font-bold">
         Logout
       </button>
@@ -38,27 +44,43 @@
       </div>
     </header>
 
-    <!-- Pending Approvals -->
-    <section id="approvals" class="bg-white p-4 rounded-xl shadow mb-8">
-      <h2 class="text-xl font-semibold mb-4">🕒 Pending Approvals</h2>
-      <table class="w-full text-left border">
+    <!-- Users List -->
+    <section id="users" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-8">
+      <h2 class="text-xl font-semibold mb-4">👥 All Users</h2>
+      <table class="w-full text-left border border-gray-300 dark:border-gray-700">
         <thead>
-          <tr class="bg-gray-200">
+          <tr class="bg-gray-200 dark:bg-gray-700">
+            <th class="p-2 border">Username</th>
+            <th class="p-2 border">Email</th>
+            <th class="p-2 border">Approved</th>
+            <th class="p-2 border">Balance (GC)</th>
+          </tr>
+        </thead>
+        <tbody id="users-table" class="bg-gray-50 dark:bg-gray-900"></tbody>
+      </table>
+    </section>
+
+    <!-- Pending Approvals -->
+    <section id="approvals" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-8">
+      <h2 class="text-xl font-semibold mb-4">🕒 Pending Approvals</h2>
+      <table class="w-full text-left border border-gray-300 dark:border-gray-700">
+        <thead>
+          <tr class="bg-gray-200 dark:bg-gray-700">
             <th class="p-2 border">Username</th>
             <th class="p-2 border">Email</th>
             <th class="p-2 border text-center">Action</th>
           </tr>
         </thead>
-        <tbody id="approvals-table" class="bg-gray-50"></tbody>
+        <tbody id="approvals-table" class="bg-gray-50 dark:bg-gray-900"></tbody>
       </table>
     </section>
 
     <!-- Withdrawals -->
-    <section id="withdrawals" class="bg-white p-4 rounded-xl shadow mb-8">
+    <section id="withdrawals" class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow mb-8">
       <h2 class="text-xl font-semibold mb-4">💵 Pending Withdrawals</h2>
-      <table class="w-full text-left border">
+      <table class="w-full text-left border border-gray-300 dark:border-gray-700">
         <thead>
-          <tr class="bg-gray-200">
+          <tr class="bg-gray-200 dark:bg-gray-700">
             <th class="p-2 border">User</th>
             <th class="p-2 border">Amount (RWF)</th>
             <th class="p-2 border">Coins</th>
@@ -66,7 +88,7 @@
             <th class="p-2 border text-center">Action</th>
           </tr>
         </thead>
-        <tbody id="withdrawals-table" class="bg-gray-50"></tbody>
+        <tbody id="withdrawals-table" class="bg-gray-50 dark:bg-gray-900"></tbody>
       </table>
     </section>
   </main>
@@ -75,7 +97,7 @@
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script>
     const supabaseUrl = "https://cnmvsuaysgjbpklwycuk.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubXZzdWF5c2dqYnBrbHd5Y3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNjY1MTIsImV4cCI6MjA3MTY0MjUxMn0.XkNE8iPORYOYfo3Z5vSxA-LrxbTpPUTDyxmWIH7zTjc"; // 👈 shyiramo API Key yawe hano
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubXZzdWF5c2dqYnBrbHd5Y3VrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYwNjY1MTIsImV4cCI6MjA3MTY0MjUxMn0.XkNE8iPORYOYfo3Z5vSxA-LrxbTpPUTDyxmWIH7zTjc"; // 👉 shyiramo API Key yawe hano
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     async function init() {
@@ -103,10 +125,27 @@
       document.getElementById("admin-name").innerText = profile.username || "Admin";
       document.getElementById("admin-avatar").src = `https://ui-avatars.com/api/?name=${profile.username}`;
 
+      // Load all users
+      const { data: allUsers } = await supabase.from("user_balances").select("*");
+      let usersHTML = "";
+      for (let u of allUsers) {
+        usersHTML += `
+          <tr>
+            <td class="p-2 border">${u.username}</td>
+            <td class="p-2 border">${u.email}</td>
+            <td class="p-2 border ${u.is_approved ? 'text-green-600' : 'text-red-600'}">
+              ${u.is_approved ? "Yes" : "No"}
+            </td>
+            <td class="p-2 border text-center">${u.total_coins} GC</td>
+          </tr>
+        `;
+      }
+      document.getElementById("users-table").innerHTML = usersHTML;
+
       // Load pending approvals
       const { data: pendingUsers } = await supabase
         .from("users")
-        .select("id, username, email, is_approved")
+        .select("id, username, email")
         .eq("is_approved", false);
 
       let approvalsHTML = "";
@@ -131,7 +170,6 @@
 
       let withdrawalsHTML = "";
       for (let w of withdrawals) {
-        // fetch username/email ya user
         const { data: u } = await supabase
           .from("users")
           .select("username, email")
@@ -168,6 +206,10 @@
     async function logout() {
       await supabase.auth.signOut();
       window.location.href = "login.html";
+    }
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle("dark");
     }
 
     init();
