@@ -8,20 +8,91 @@
   <script src="https://unpkg.com/framer-motion/dist/framer-motion.umd.js"></script>
 </head>
 <body class="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 text-white font-sans">
+<!-- Header -->
+<header class="backdrop-blur bg-black/70 py-4 shadow-md sticky top-0 z-50 border-b border-gray-800">
+  <div class="container mx-auto flex justify-between items-center px-6">
+    <!-- Logo -->
+    <h1 class="text-3xl font-extrabold text-green-400 tracking-tight">GrooveKits</h1>
 
-  <!-- Header -->
-  <header class="backdrop-blur bg-black/70 py-4 shadow-md sticky top-0 z-50 border-b border-gray-800">
-    <div class="container mx-auto flex justify-between items-center px-6">
-      <h1 class="text-3xl font-extrabold text-green-400 tracking-tight">GrooveKits</h1>
-      <nav class="space-x-6 text-gray-300 font-medium">
-        <a href="#services" class="hover:text-green-400 transition">Services</a>
-        <a href="#marketplace" class="hover:text-green-400 transition">Marketplace</a>
-        <a href="#tutorials" class="hover:text-green-400 transition">Tutorials</a>
-         <a href="Earn-money.html" class="hover:text-green-400 transition">Earn money</a>
-        <a href="login.html" class="hover:text-green-400 transition">Login</a>
-      </nav>
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex space-x-6 text-gray-300 font-medium items-center">
+      <a href="#services" class="hover:text-green-400 transition">Services</a>
+      <a href="#marketplace" class="hover:text-green-400 transition">Marketplace</a>
+      <a href="#tutorials" class="hover:text-green-400 transition">Tutorials</a>
+      <a href="Earn-money.html" class="hover:text-green-400 transition">Earn money</a>
+      <a href="login.html" class="hover:text-green-400 transition">Login</a>
+      <!-- Music Control -->
+      <div class="flex items-center space-x-2 bg-gray-800/70 px-3 py-1 rounded-xl shadow-md border border-gray-700">
+        <button onclick="toggleMusic()" id="musicBtn" class="text-green-400 hover:text-green-300 text-lg">⏸</button>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.05" value="0.5" class="w-20 accent-green-400">
+      </div>
+    </nav>
+
+    <!-- Mobile Hamburger -->
+    <button id="menuBtn" class="md:hidden text-green-400 text-2xl focus:outline-none">
+      ☰
+    </button>
+  </div>
+
+  <!-- Mobile Menu (hidden by default) -->
+  <div id="mobileMenu" class="hidden flex-col bg-black/90 text-gray-300 font-medium space-y-4 px-6 py-6 md:hidden">
+    <a href="#services" class="hover:text-green-400 transition">Services</a>
+    <a href="#marketplace" class="hover:text-green-400 transition">Marketplace</a>
+    <a href="#tutorials" class="hover:text-green-400 transition">Tutorials</a>
+    <a href="Earn-money.html" class="hover:text-green-400 transition">Earn money</a>
+    <a href="login.html" class="hover:text-green-400 transition">Login</a>
+    <!-- Music Control -->
+    <div class="flex items-center space-x-2 bg-gray-800/70 px-3 py-2 rounded-xl shadow-md border border-gray-700">
+      <button onclick="toggleMusic()" id="musicBtnMobile" class="text-green-400 hover:text-green-300 text-lg">⏸</button>
+      <input type="range" id="volumeControlMobile" min="0" max="1" step="0.05" value="0.5" class="w-24 accent-green-400">
     </div>
-  </header>
+  </div>
+</header>
+
+<!-- Background music -->
+<audio id="bg-music" autoplay loop>
+  <source src="groove.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+<script>
+  const music = document.getElementById("bg-music");
+  const musicBtn = document.getElementById("musicBtn");
+  const musicBtnMobile = document.getElementById("musicBtnMobile");
+  const volumeControl = document.getElementById("volumeControl");
+  const volumeControlMobile = document.getElementById("volumeControlMobile");
+  const menuBtn = document.getElementById("menuBtn");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  // Toggle menu
+  menuBtn.addEventListener("click", () => {
+    mobileMenu.classList.toggle("hidden");
+  });
+
+  // Volume control
+  [volumeControl, volumeControlMobile].forEach(ctrl => {
+    ctrl.addEventListener("input", () => {
+      music.volume = ctrl.value;
+      // keep both sliders synced
+      volumeControl.value = ctrl.value;
+      volumeControlMobile.value = ctrl.value;
+    });
+  });
+
+  // Toggle play/pause
+  function toggleMusic() {
+    if (music.paused) {
+      music.play();
+      musicBtn.textContent = "⏸";
+      musicBtnMobile.textContent = "⏸";
+    } else {
+      music.pause();
+      musicBtn.textContent = "▶️";
+      musicBtnMobile.textContent = "▶️";
+    }
+  }
+</script>
+
 
   <!-- Hero Section -->
 <section class="relative text-center py-28 bg-cover bg-center bg-no-repeat"
@@ -137,7 +208,7 @@
     </div>
 
   </div>
-</section>
+
 
 
 
@@ -147,3 +218,4 @@
   </footer>
 </body>
 </html>
+
